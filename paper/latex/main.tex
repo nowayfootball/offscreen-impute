@@ -34,22 +34,24 @@ all 22 players, yet the dominant source of positional data --- the broadcast mai
 camera --- shows only 10--16 of them at any moment. We quantify the resulting
 distortion with an open, reproducible benchmark: a simulated broadcast viewport
 applied to open full-pitch tracking data (Metrica Sports). Ignoring off-screen
-players, the standard practice of video-based game-state-reconstruction (GSR)
-pipelines, inflates hidden-zone pitch-control error to 26.9 percentage points and
-biases team control share by 13.4 points. We then evaluate a ladder of
+players, the default in current video-based game-state-reconstruction (GSR)
+practice, inflates hidden-zone pitch-control error to 25.6--26.9 percentage
+points and biases team control share by 12.5--13.4 points across the two
+matches. We then evaluate a ladder of
 \emph{training-free, online} imputation baselines that use only observations from
 the match being analysed. The strongest, \emph{role-anchored centroid voting} ---
 each visible player votes for the full-team centroid by subtracting its running
 role offset, cancelling the viewport-induced subset bias --- cuts hidden-zone
-error to 13.3 points and share bias to 4.7 points, consistently across two
-matches and viewport widths from 36\,m to 60\,m. In the short-occlusion regime
-($\le$9.6\,s) covered by prior learned imputers, our training-free method reaches
-median position error of 3--9\,m, comparable to learned models that additionally
-exploit future observations; 57\% of real hidden-player mass, however, lies
-beyond that regime, which our benchmark is the first to score. We integrate the
+error roughly in half (to 12.2--13.3 points) and share bias to below 5 points,
+consistently across both matches and viewport widths from 36\,m to 60\,m. In
+the short-occlusion regime ($\le$9.6\,s) covered by prior learned imputers, our
+training-free method reaches median position error of 3.3--8.9\,m, of the same
+order as learned models that additionally exploit future observations; 53--57\%
+of hidden-player observations under the simulated viewport, however, lie beyond
+that regime, which our benchmark is, to our knowledge, the first to score. We integrate the
 method end-to-end into an open broadcast-video GSR pipeline and show that
 imputation changes a downstream possession-quality verdict (Space-Creation
-Index) by 15--17 points on real World Cup broadcast clips --- a
+Index) by 15.6 and 17.2 points on two real World Cup broadcast windows --- a
 decision-relevant magnitude.
 \end{abstract}
 
@@ -58,9 +60,10 @@ decision-relevant magnitude.
 Video-based game state reconstruction (GSR) turns ordinary broadcast footage into
 player coordinates on a common pitch template, promising tracking-level analytics
 without stadium hardware~\citep{somers2024soccernet}. But the broadcast main
-camera pans and zooms with the ball: in our World Cup broadcast clips, and
-consistently across the SoccerNet-GSR literature~\citep{somers2024soccernet,
-ochin2025footpass}, only 10--16 of the 22 players are visible in a typical frame.
+camera pans and zooms with the ball: in our World Cup broadcast clips only
+10--16 of the 22 players are visible in a typical frame, consistent with the
+9--12 reported for broadcast video by~\citet{ochin2025footpass} and the
+12.8$\pm$3.7 of~\citet{omidshafiei2022}.
 Team-level spatial metrics --- pitch control~\citep{spearman2017physics,
 spearman2018beyond}, space value, block compactness --- are then computed over a
 biased subset of players: the team whose defenders sit off-screen silently cedes
@@ -100,9 +103,10 @@ possession-quality verdict by a decision-relevant magnitude
 Our position is deliberately modest: learned imputers remain preferable when
 training data and future context are available. What we establish is (i) how
 large the distortion actually is, (ii) a strong training-free floor that any
-learned method should beat, and (iii) the first scoring of the long-occlusion
-regime ($>$9.6\,s) that prior protocols truncate away --- which turns out to hold
-the majority (57\%) of real hidden-player observations.
+learned method should beat, and (iii) the first scoring, to our knowledge, of
+the long-occlusion regime ($>$9.6\,s) that prior protocols truncate away ---
+which turns out to hold the majority (53--57\%) of hidden-player observations
+in our benchmark.
 
 \section{Related Work}
 \label{sec:related}
@@ -119,8 +123,9 @@ length, whereas our setting is strictly online with unbounded occlusions.
 MIDAS~\citep{choi2025midas} and related set-transformer imputers represent the
 learned state of the art on multi-agent trajectory imputation, including
 camera-mask experiments. \citet{penn2025continuous} reconstruct continuous
-trajectories from discrete broadcast-derived observations with an LSTM/GNN
-model --- an adjacent observation model where sparsity is temporal rather than
+trajectories from discrete broadcast-derived observations with a parsimonious
+autoregressive (ARMAX) model that uses the ball position as an exogenous
+input --- an adjacent observation model where sparsity is temporal rather than
 spatial.
 
 \paragraph{Ghosting.}
@@ -154,9 +159,9 @@ them.
 A virtual main camera pans horizontally following an exponentially smoothed ball
 position ($\alpha = 0.06$ per frame at 25\,fps), reproducing the pan lag of a
 human camera operator; the visible region is a width-$W$ window spanning the full
-pitch height. At $W = 44$\,m the viewport shows 14.6 players on average, matching
-our real broadcast clips (10--16 visible) and the 12.8$\pm$3.7 reported
-by~\citet{omidshafiei2022}. Sensitivity is reported for
+pitch height. At $W = 44$\,m the viewport shows 14.6--14.9 players on average
+(games 1/2), matching our real broadcast clips (10--16 visible) and the
+12.8$\pm$3.7 reported by~\citet{omidshafiei2022}. Sensitivity is reported for
 $W \in \{36, 44, 52, 60\}$\,m.
 
 \paragraph{Metrics.}
@@ -165,14 +170,16 @@ than trajectory fidelity alone:
 \begin{enumerate}
 \item \textbf{Hidden-player position error} (m): distance between imputed and
 true position, over all (frame, player) pairs where the player is outside the
-viewport.
+viewport and has been observed at least once earlier in the half.
 \item \textbf{Pitch-control map MAE}: pitch control is computed on a 3\,m grid
 with an arrival-time model and sigmoid contest
 function~\citep{spearman2017physics}; we report mean absolute error against the
 full-observation control map, over the full pitch and over the \emph{hidden
 zone} (grid cells outside the viewport) separately. Control is computed with
 zero velocities in all conditions, isolating the effect of imputation from that
-of velocity estimation.
+of velocity estimation; the reported magnitudes therefore apply to this
+position-only control variant (velocity-aware control is discussed in
+Section~\ref{sec:limitations}).
 \item \textbf{Team control-share bias} (percentage points): absolute error in
 the single headline number ``team A controls $x\%$ of the pitch''.
 \end{enumerate}
@@ -190,31 +197,39 @@ $i$'s \emph{role offset} --- its displacement from the team centroid.
 \item[B0 --- ignore.] Hidden players are absent from the metric. This is the
 current practice of GSR pipelines.
 \item[B1 --- last-seen with decay.] Hold the last observed position, blending
-toward the visible-team mean with time constant $\tau = 8$\,s.
+toward the visible-team mean with exponential weight $e^{-\Delta t/\tau}$,
+$\tau = 8$\,s.
 \item[B2 --- formation anchor.] While player $i$ is visible, store
 $\mathrm{off}_i = p_i - \bar{p}_{V}$, its offset from the \emph{visible-team}
 centroid. When hidden, place the player at the current visible centroid plus the
 stored offset.
-\item[B3 --- B2 + EMA offsets + velocity extrapolation.] As B2, with
-exponentially averaged offsets and short-gap constant-velocity extrapolation.
-Kept as a negative result (Section~\ref{sec:results}).
+\item[B3 --- B2 + EMA offsets + velocity extrapolation.] As B2, but with
+exponentially averaged offsets and constant-velocity extrapolation for recently
+hidden players, blended into the anchor with weight $e^{-\Delta t/1.5\,\mathrm{s}}$.
+Kept largely as a negative result (Section~\ref{sec:results}).
 \item[B4 --- role-anchored centroid voting.] The visible-team centroid
 $\bar{p}_{V}$ in B2 is itself biased by the viewport: when the camera points
 left, the visible subset sits left of the true team centroid, and every stored
 offset inherits that bias. B4 removes it by \emph{voting}: each visible player
 proposes the full-team centroid as its position minus its role offset,
 \begin{equation}
-\hat{c}(t) \;=\; \frac{1}{|V_t|}\sum_{i \in V_t}\bigl(p_i(t) - \mathrm{off}_i(t)\bigr),
+\hat{c}(t) \;=\; \frac{1}{|V_t|}\sum_{i \in V_t}\bigl(p_i(t) - \mathrm{off}_i(t^-)\bigr),
 \qquad
 \mathrm{off}_i(t) \;\leftarrow\; \mathrm{EMA}\bigl[\,p_i(t) - \hat{c}(t)\,\bigr]
 \quad (i \in V_t),
 \end{equation}
-a self-consistent bootstrap: offsets are stored relative to the \emph{voted}
-centroid, and the voted centroid is computed from those same offsets
-(initialised from the visible mean). Hidden player $j$ is imputed at
-$\hat{c}(t) + \mathrm{off}_j$. Because each player's individual viewport bias is
-subtracted before averaging, the systematic subset bias cancels rather than
-accumulates.
+where $\mathrm{off}_i(t^-)$ denotes the offset value \emph{before} the update
+at $t$: each step votes with the previous offsets, then updates them against
+the voted centroid (EMA weight $0.1$ per 5\,fps evaluation step). This is a self-consistent bootstrap --- offsets are stored
+relative to the voted centroid, and the voted centroid is computed from those
+same offsets. The recursion is seeded from the visible mean until three
+offset-bearing players are available; thereafter, newly appearing players are
+initialised relative to the voted centroid. Hidden player $j$ is imputed at
+$\hat{c}(t) + \mathrm{off}_j$. Because each player's individual viewport bias
+is subtracted before averaging, the systematic subset bias cancels rather than
+accumulates. When fewer than three voters are available, B4 falls back to the
+formation anchor (B2), and B2 in turn to last-seen (B1) for players without a
+stored offset; such fallback frames are included in the reported numbers.
 \end{description}
 
 \section{Results}
@@ -223,8 +238,8 @@ accumulates.
 \begin{table}[t]
 \centering
 \caption{Imputation ladder at $W = 44$\,m (first halves of both Metrica
-matches). Lower is better throughout. B0 has no position error since it places
-no players.}
+matches). Lower is better throughout; bold marks the best method per column.
+B0 has no position error since it places no players.}
 \label{tab:ladder}
 \small
 \begin{tabular}{lcccccc}
@@ -237,8 +252,8 @@ no players.}
 B0 ignore        & 26.9 & 13.4 & ---  & 25.6 & 12.5 & ---  \\
 B1 last-seen     & 22.1 & 10.6 & 19.6 & 20.0 &  9.5 & 17.9 \\
 B2 anchor        & 15.7 &  6.2 & 13.6 & 14.6 &  5.4 & 12.8 \\
-B3 +velocity     & 12.8 &  5.7 & 14.6 & 11.8 &  4.6 & 14.0 \\
-\textbf{B4 centroid vote} & \textbf{13.3} & \textbf{4.7} & \textbf{11.6} & \textbf{12.2} & \textbf{4.5} & \textbf{10.0} \\
+B3 +velocity     & \textbf{12.8} &  5.7 & 14.6 & \textbf{11.8} &  4.6 & 14.0 \\
+B4 centroid vote & 13.3 & \textbf{4.7} & \textbf{11.6} & 12.2 & \textbf{4.5} & \textbf{10.0} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -247,21 +262,24 @@ B3 +velocity     & 12.8 &  5.7 & 14.6 & 11.8 &  4.6 & 14.0 \\
 Table~\ref{tab:ladder} reports the ladder at $W = 44$\,m.
 Ignoring off-screen players (B0) leaves a hidden-zone control MAE of
 25.6--26.9\pp{} and biases the headline control share by 12.5--13.4\pp{}.
-The naive last-seen policy recovers only a quarter of that. The formation anchor
+The naive last-seen policy removes only about a fifth of it. The formation anchor
 (B2) is the single largest step --- most of a hidden player's position is
 explained by ``the team moved, the player kept its role''. Centroid voting (B4)
 then removes the viewport subset bias that B2 inherits, and is the best method
 on both decision-relevant metrics: position error 10.0--11.6\,m median and share
-bias 4.5--4.7\pp{}, one third of B0.
+bias 4.5--4.7\pp{}, roughly a third of B0. Figure~\ref{fig:panels} visualises
+the effect on a single frame: the hidden zone misassigned by B0 is largely
+restored by B4.
 
 \paragraph{Negative result: velocity extrapolation hurts.}
 B3's constant-velocity extrapolation \emph{degrades} position error relative to
 B2 (14.0--14.6\,m vs.\ 12.8--13.6\,m). The failure mode is systematic: players
 typically leave the viewport moving \emph{outward} (that is why they exit), but
 then hold their defensive line rather than continuing; extrapolation keeps
-pushing them away. The latest formation snapshot is the better prior. B3's
-slight edge on hidden-zone map MAE comes from its EMA anchor component, which B4
-retains.
+pushing them away. The latest formation snapshot is the better prior. B3 does
+retain a small edge on hidden-zone map MAE (its exponentially averaged anchor
+smooths the control field), but it is worse where decisions are made ---
+position error and control share --- so we adopt B4.
 
 \begin{figure}[t]
 \centering
@@ -269,8 +287,8 @@ retains.
 \caption{Left: imputation ladder at $W=44$\,m (hidden-zone control MAE and
 control-share bias, both games). Right: viewport-width sensitivity --- B4
 (solid) vs.\ B0 (dashed) across $W = 36$--$60$\,m. The ordering is monotone and
-consistent in both matches; B4's absolute gain is largest in the narrowest
-(hardest) viewports.}
+consistent in both matches; B4's absolute share-bias gain is largest in the
+narrowest (hardest) viewports.}
 \label{fig:ladder}
 \end{figure}
 
@@ -297,9 +315,10 @@ $W$ (m) & visible (of 22) & MAE (\%p) & bias (\%p) & MAE (\%p) & bias (\%p) \\
 \paragraph{Sensitivity.}
 Table~\ref{tab:sens} and Figure~\ref{fig:ladder} report the sweep over viewport
 widths. Across $W = 36$--$60$\,m the method ordering is monotone and consistent
-in both matches; B4 reduces share bias to roughly one third of B0 at every
-width, with the largest absolute gains in the narrowest (hardest) viewports ---
-the method is most valuable exactly when observation is poorest.
+in both matches; B4 reduces share bias to roughly a third of B0 (28--39\%
+across widths), with the largest absolute share-bias gains in the narrowest
+(hardest) viewports --- the method is most valuable exactly when observation is
+poorest.
 
 \subsection{Occlusion-time stratification and protocol comparison}
 \label{sec:protocol}
@@ -318,7 +337,7 @@ regime.}
 & Graph Imputer & This work \\
 \midrule
 Camera model & view-cone $\times$ pitch polygon, ball-led & ball-EMA pan window (width $W$) \\
-Visible players & 12.8 $\pm$ 3.7 of 22 & 14.6 of 22 ($W=44$\,m) \\
+Visible players & 12.8 $\pm$ 3.7 of 22 & 14.6--14.9 of 22 ($W=44$\,m) \\
 Temporal structure & bidirectional (sees \emph{future} obs.), & online, causal, \\
 & occlusions truncated at 9.6\,s & occlusions unbounded \\
 Training data & 105 proprietary EPL matches & none (current match only) \\
@@ -339,21 +358,22 @@ stratifying B4's position error by occlusion duration:
 \toprule
 occlusion gap & $\le$2\,s & 2--9.6\,s & $>$9.6\,s \\
 \midrule
-B4 median position error & 3.3--3.7\,m & 7.2--8.9\,m & $\sim$15.8\,m \\
-share of hidden observations & \multicolumn{2}{c}{43\%} & 57\% \\
+B4 median position error & 3.3--3.7\,m & 7.2--8.9\,m & 15.6--15.9\,m \\
+share of hidden observations & \multicolumn{2}{c}{43--47\%} & 53--57\% \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 Within the $\le$9.6\,s regime that the Graph Imputer's protocol scores, a
-training-free online method reaches 3--9\,m median error --- competitive with
-learned bidirectional models operating with strictly more information. The
-majority of real hidden-player mass (57\%), however, lies \emph{beyond} 9.6\,s:
-long occlusions of far-side defenders during sustained attacking phases are
-precisely where spatial metrics need imputation most, and this regime had not
-previously been scored at all. It is also where our absolute errors
-($\sim$15.8\,m median) show the remaining headroom, which we expect learned
-long-horizon models to attack.
+training-free online method reaches 3.3--8.9\,m median error --- of the same
+order as learned bidirectional models operating with strictly more information,
+which remain more accurate within their own regime.
+The majority of hidden-player observations in our benchmark (53--57\%),
+however, lies \emph{beyond} 9.6\,s: long occlusions of far-side defenders
+during sustained attacking phases are precisely where spatial metrics need
+imputation most, and this regime had not, to our knowledge, previously been
+scored. It is also where our absolute errors (15.6--15.9\,m median) show the
+remaining headroom, which we expect learned long-horizon models to attack.
 
 \section{Application: Possession-Quality Verdicts on Real Broadcasts}
 \label{sec:application}
@@ -374,17 +394,24 @@ open broadcast-video GSR pipeline: PnLCalib-based camera
 calibration~\citep{gutierrez2024pnlcalib} with a temporal bridge, BoT-SORT
 tracking~\citep{aharon2022botsort}, colour-based team assignment, and shot-change
 gating; the pipeline scores GS-HOTA 35.2 on the SoccerNet-GSR test subset
-vs.\ the official 26.6 baseline~\citep{somers2024soccernet}. Off-screen players
-are rendered as fading ``ghosts'' with role-anchored positions, capped at eleven
-per team, and retired when a re-appearing track emerges within 3\,m of a ghost's
-prediction.
+vs.\ the official 26.6 baseline~\citep{somers2024soccernet} (challenge-winning
+systems with GPU appearance re-identification reach substantially higher; our
+pipeline is CPU-only). Off-screen players
+are rendered as ``ghosts'' with role-anchored positions that fade over a 20\,s
+lifetime; ghosts top the team up to at most eleven players (visible plus
+ghosts), and a ghost is retired when a newly appearing track (within 2\,s of its
+birth) emerges within 3\,m of the ghost's prediction.
 
 As a downstream consumer we use a possession-quality metric, the
 \emph{Space-Creation Index} (SCI): during a flagged low-threat possession
-(``junk possession''), SCI measures whether the possessing team's control of the
-attacking third grows while the opponent's advanced control collapses
-(positive: the possession creates space even without shots) or nothing moves
-(zero or negative: dead possession). On two event-flagged junk-possession
+(``junk possession''), $\mathrm{SCI} = \Delta_{\mathrm{own}} +
+\Delta_{\mathrm{opp}}$, where $\Delta_{\mathrm{own}}$ is the change in the
+possessing team's pitch-control share of the attacking third between the first
+and last thirds of the window, and $\Delta_{\mathrm{opp}}$ is the collapse of
+the opponent's control share in its own advanced zone (both in percentage
+points, from the same pitch-control model as
+Section~\ref{sec:benchmark}). Positive SCI: the possession creates space even
+without shots; zero or negative: dead possession. On two event-flagged junk-possession
 windows from a World Cup broadcast (Morocco--Netherlands), imputation moves the
 verdict by a decision-relevant magnitude:
 
@@ -398,7 +425,7 @@ changes from ``dead junk'' to ``weak progression''.
 
 Absent full-pitch ground truth for broadcast footage we make no correctness
 claim on real clips; the point is a sensitivity result. Visible-only spatial
-verdicts can move by 15--17 SCI points under imputation --- larger than the gap
+verdicts can move by 15.6--17.2 SCI points under imputation --- larger than the gap
 between verdict classes --- so any pipeline that reports spatial
 possession-quality from broadcast video without imputation is reporting, in
 part, camera work.
@@ -414,7 +441,12 @@ velocity-free here to isolate the imputation effect; velocity-aware control with
 imputed velocities is open, and our negative result on extrapolation suggests it
 is not trivial. The benchmark uses two matches from a single provider; more
 matches and leagues would tighten the estimates, though the effect sizes are
-large and consistent across both matches and all viewport widths. Finally,
+large and consistent across both matches and all viewport widths. The simulated
+viewport pans but does not zoom or tilt; zoom changes the number of visible
+players, so real-broadcast occlusion statistics (including the 53--57\%
+long-occlusion share) may differ from the simulated ones. A fixed
+formation-template prior (mean role positions) is a further natural rung of the
+ladder that we leave to future work. Finally,
 learned imputers remain preferable when future context and training data are
 available --- our contribution is the strong training-free floor, the harsher
 online/long-occlusion benchmark, and the downstream-metric framing.
