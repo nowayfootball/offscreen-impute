@@ -12,6 +12,12 @@
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage{xcolor}
+\hypersetup{
+  pdftitle={Training-Free Off-Screen Player Imputation for Broadcast-Based Spatial Football Analytics},
+  pdfauthor={Seongjin (Jayce) Choi},
+  pdfsubject={Off-screen player imputation and spatial football analytics},
+  pdfkeywords={football analytics, player imputation, pitch control, game state reconstruction}
+}
 
 \newcommand{\pp}{\,pp}   % percentage points
 
@@ -127,7 +133,14 @@ observations within 9.6\,s windows), and trajectories are segmented into
 whereas our setting is strictly online with unbounded occlusions.
 MIDAS~\citep{choi2025midas} is a recent learned set-transformer imputer
 reporting strong results on multi-agent trajectory imputation, including
-camera-mask experiments. \citet{penn2025continuous} reconstruct continuous
+camera-mask experiments; TranSPORTmer~\citep{capellera2024transportmer} similarly
+unifies forecasting, imputation, and agent-status inference for multi-agent
+sports in a single transformer under an input mask. \citet{everett2023inferring}
+impute full-team player locations from sparse event observations using recurrent
+and graph-based components, enabling downstream analyses such as pitch dominance;
+their observation setting is event-driven rather than camera-mask-driven and
+requires offline training, whereas our benchmark targets causal broadcast-view
+occlusion without training data. \citet{penn2025continuous} reconstruct continuous
 trajectories from discrete broadcast-derived observations with a parsimonious
 autoregressive (ARMAX) model that uses the ball position as an exogenous
 input --- an adjacent observation model where sparsity is temporal rather than
@@ -244,7 +257,7 @@ the ablation (Section~\ref{sec:results}).
 \item[B4 --- role-anchored centroid voting.] The visible-team centroid
 $\bar{p}_{V}$ in B2 is itself biased by the viewport: when the camera points
 left, the visible subset sits left of the true team centroid, and every stored
-offset inherits that bias. B4 removes it by \emph{voting}: each visible player
+offset inherits that bias. B4 attenuates it by \emph{voting}: each visible player
 proposes the full-team centroid as its position minus its role offset,
 \begin{equation}
 \hat{c}(t) \;=\; \frac{1}{|V_t|}\sum_{i \in V_t}\bigl(p_i(t) - \mathrm{off}_i(t^-)\bigr),
@@ -385,8 +398,8 @@ observation is poorest.
 \caption{Observation-protocol comparison with the Graph
 Imputer~\citep{omidshafiei2022}. The regimes differ in the two dimensions that
 matter most --- temporal information and training data --- so numeric results
-are not directly comparable; the stratified analysis below aligns the occlusion
-regime.}
+are not directly comparable; the stratified analysis below partially narrows the
+occlusion-regime mismatch.}
 \label{tab:protocol}
 \small
 \begin{tabular}{lll}
@@ -424,8 +437,8 @@ share of hidden samples (frame-weighted) & \multicolumn{2}{c}{$\le$9.6\,s: 43--5
 For occlusion gaps short enough to fit within a 9.6\,s window --- the regime
 closest to the Graph Imputer's protocol --- a training-free online method
 reaches 3.3--8.9\,m median error. We do not attempt a numeric comparison:
-masking, aggregation, and data all differ, and learned bidirectional models
-remain more accurate within their own regime; the point is that a zero-training
+masking, aggregation, and data all differ, and we do not claim superiority over
+learned bidirectional models within their own evaluation regime; the point is that a zero-training
 method is usable there at all.
 Roughly half or more of the hidden (frame, player) samples in our benchmark
 (50--57\%, frame-weighted --- long episodes dominate this count) lie
@@ -540,8 +553,9 @@ All benchmark experiments run on CPU with open data (Metrica Sports sample
 data~\citep{metrica2020}) and open code; the benchmark, the imputation ladder,
 the figures, and the exact commands are available at
 \url{https://github.com/nowayfootball/offscreen-impute}. The broadcast case
-study uses World Cup footage we cannot redistribute; the pipeline code is
-open, but the footage must be sourced by the reader. No GPU or cloud
+study uses World Cup footage that we cannot redistribute. The benchmark code is
+publicly available, while the case-study pipeline and footage are not included
+in the public repository. No GPU or cloud
 expenditure was used for any experiment in this paper.
 
 \bibliographystyle{plainnat}

@@ -44,6 +44,10 @@ protocol of the closest prior work.
 
 ## Reproduce (CPU-only, ~2 min per run)
 
+The imputation itself is closed-form arithmetic and runs faster than real time on a
+single CPU core; each command below benchmarks a full 45-minute half (5 fps) end-to-end
+in about 2 minutes on one Arm Neoverse-N1 core.
+
 ```bash
 pip install -r requirements.txt
 bash scripts/download_data.sh
@@ -55,8 +59,9 @@ python src/impute_bench.py --game 1 --minutes 20 --viz 2500
 ```
 
 Every benchmark number in the paper comes from these commands. Total compute cost: $0.
-(The real-broadcast case study uses World Cup footage that cannot be redistributed; the
-pipeline code is open but the footage must be sourced separately.)
+(The real-broadcast case study uses World Cup footage that cannot be redistributed. The
+benchmark code above is publicly available, while the case-study pipeline and footage are
+not included in this repository.)
 
 ## Paper
 
