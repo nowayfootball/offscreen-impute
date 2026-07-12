@@ -10,7 +10,15 @@ authors:
     affiliation: "Independent Researcher"
 year: 2026
 license: CC-BY-4.0
+doi: "10.5281/zenodo.21327945"
 repository-code: "https://github.com/nowayfootball/offscreen-impute"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.21327945"
+    description: "Concept DOI (always resolves to the latest version)"
+  - type: doi
+    value: "10.5281/zenodo.21327946"
+    description: "Version DOI for v1.0"
 keywords:
   - football analytics
   - player imputation

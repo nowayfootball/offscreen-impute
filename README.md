@@ -1,5 +1,7 @@
 # Off-Screen Player Imputation for Broadcast-Based Spatial Football Analytics
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21327945.svg)](https://doi.org/10.5281/zenodo.21327945)
+
 Training-free, online imputation of off-camera players, benchmarked by what actually
 matters downstream: **pitch-control error and team control-share error**, not just
 trajectory fidelity.
@@ -75,6 +77,7 @@ Compiled PDF: [`paper/offscreen_impute.pdf`](paper/offscreen_impute.pdf).
 Full-text summary: [`paper/offscreen_impute_EN.md`](paper/offscreen_impute_EN.md)
 (Korean version: [`paper/offscreen_impute_KO.md`](paper/offscreen_impute_KO.md)).
 LaTeX source: [`paper/latex/main.tex`](paper/latex/main.tex).
+Archived release with DOI: [10.5281/zenodo.21327945](https://doi.org/10.5281/zenodo.21327945).
 
 ## Data & license
 
