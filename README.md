@@ -51,9 +51,15 @@ in about 2 minutes on one Arm Neoverse-N1 core.
 ```bash
 pip install -r requirements.txt
 bash scripts/download_data.sh
-python src/impute_bench.py --game 1 --width 44 --fps 5 --minutes 45
-python src/impute_bench.py --game 2 --width 44 --fps 5 --minutes 45
-python src/impute_bench.py --game 3 --width 44 --fps 5 --minutes 45  # held-out EPTS half
+
+# main ladder (Table 1, W = 44) and viewport-width sensitivity (Table 2, W = 36/44/52/60),
+# all three games including the held-out game 3:
+for game in 1 2 3; do
+  for width in 36 44 52 60; do
+    python src/impute_bench.py --game "$game" --width "$width" --fps 5 --minutes 45
+  done
+done
+
 # snapshot figure:
 python src/impute_bench.py --game 1 --minutes 20 --viz 2500
 ```
