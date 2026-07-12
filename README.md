@@ -11,7 +11,13 @@ visible subset silently hands the hidden half of the pitch to the wrong team:
 *Left: ground-truth pitch control with all 22 players. Middle: visible-only (current
 GSR practice) — the hidden defenders vanish and the right half flips. Right: imputed.*
 
-## Results (Metrica open data, simulated 44 m broadcast viewport, 2 matches)
+## Results (Metrica open data, simulated 44 m broadcast viewport, 3 matches)
+
+Table below shows games 1 / 2; game 3 (a held-out half in Metrica's EPTS-FIFA
+format, parsed by a separate loader) is used as an out-of-sample check. The script
+also reports ablations B3e (EMA offsets only), B3v (velocity blend only) and B5
+(fixed formation template = cumulative-mean offsets), plus B4 fallback-source
+shares and 1-minute block-bootstrap 95% CIs for B0/B4.
 
 | policy | hidden-zone control MAE | team share bias | median position error |
 |---|---|---|---|
@@ -38,6 +44,7 @@ pip install -r requirements.txt
 bash scripts/download_data.sh
 python src/impute_bench.py --game 1 --width 44 --fps 5 --minutes 45
 python src/impute_bench.py --game 2 --width 44 --fps 5 --minutes 45
+python src/impute_bench.py --game 3 --width 44 --fps 5 --minutes 45  # held-out EPTS half
 # snapshot figure:
 python src/impute_bench.py --game 1 --minutes 20 --viz 2500
 ```

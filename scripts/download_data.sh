@@ -12,3 +12,10 @@ for g in 1 2; do
     echo "ok $f"
   done
 done
+# Game 3 (held-out, EPTS-FIFA format): metadata XML + tracking txt
+[ -f "$DIR/g3_meta.xml" ] || curl -sL -o "$DIR/g3_meta.xml" \
+  "$BASE/Sample_Game_3/Sample_Game_3_metadata.xml"
+echo "ok g3_meta.xml"
+[ -f "$DIR/g3_tracking.txt" ] || curl -sL -o "$DIR/g3_tracking.txt" \
+  "$BASE/Sample_Game_3/Sample_Game_3_tracking.txt"
+echo "ok g3_tracking.txt"
