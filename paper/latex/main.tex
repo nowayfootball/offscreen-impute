@@ -58,7 +58,7 @@ work, our training-free method reaches binwise median position errors of
 3.3--8.9\,m; 50--57\% of hidden-player observations under the simulated
 viewport, however, lie beyond that regime, outside the 9.6\,s sequence
 protocol of that prior work. We integrate the
-method end-to-end into an open broadcast-video GSR pipeline and show that
+method end-to-end into a broadcast-video GSR pipeline and show that
 imputation changes a downstream possession-quality score (Space-Creation
 Index) by 15.6 and 17.2 points on two real World Cup broadcast windows,
 flipping the verdict class --- under prespecified operational thresholds ---
@@ -104,7 +104,7 @@ downstream analytics rather than by trajectory fidelity alone
 error and cuts control-share error to 28--48\% of the ignore-policy
 baseline, without offline training, future observations, or GPU
 (Sections~\ref{sec:ladder}--\ref{sec:results}).
-\item \textbf{End-to-end integration} into an open video$\to$GSR$\to$metrics
+\item \textbf{End-to-end integration} into a video$\to$GSR$\to$metrics
 pipeline, with a case study on real World Cup broadcasts where imputation
 moves a possession-quality score by a decision-relevant magnitude, changing
 the verdict class in one of two windows (Section~\ref{sec:application}).
@@ -463,7 +463,7 @@ zone is largely restored without any training data.}
 \end{figure}
 
 To probe the effect on real footage, we integrate a B4-inspired ghosting layer
-into an open broadcast-video GSR pipeline: PnLCalib-based camera
+into a broadcast-video GSR pipeline assembled from open-source components: PnLCalib-based camera
 calibration~\citep{gutierrez2024pnlcalib} with a temporal bridge, BoT-SORT
 tracking~\citep{aharon2022botsort}, colour-based team assignment, and shot-change
 gating; the pipeline scores GS-HOTA 35.2 on the 11 publicly downloadable
