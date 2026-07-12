@@ -17,9 +17,9 @@
 
 \title{Training-Free Off-Screen Player Imputation for\\Broadcast-Based Spatial Football Analytics}
 
-% TODO(사용자 확인 필요): 실명 + 소속으로 교체. arXiv는 실명 권장.
+% TODO: ORCID 발급 후 \thanks 각주에 \url{https://orcid.org/XXXX-XXXX-XXXX-XXXX} 추가.
 \author{%
-  Nowayfootball\thanks{Independent researcher. Code and data:
+  Seongjin (Jayce) Choi\thanks{Independent researcher. Code and data:
   \url{https://github.com/nowayfootball/offscreen-impute}.
   Contact: \texttt{cordelia35794@gmail.com}.}%
 }
@@ -41,7 +41,7 @@ hidden-zone pitch-control error to 25.1--26.9 percentage points and produces a
 mean absolute control-share error of 11.1--13.4 points across the three
 matches. We then evaluate a ladder of
 \emph{training-free, online} imputation baselines that use only observations from
-the match being analysed. The best on the decision-relevant metrics, \emph{role-anchored centroid
+the match being analysed. The best overall on these decision-relevant metrics, \emph{role-anchored centroid
 voting} --- each visible player votes for the full-team centroid by subtracting
 its running role offset, attenuating the viewport-induced subset bias ---
 roughly halves hidden-zone error (to 12.2--13.8 points) and cuts the
@@ -55,7 +55,8 @@ protocol of that prior work. We integrate the
 method end-to-end into an open broadcast-video GSR pipeline and show that
 imputation changes a downstream possession-quality score (Space-Creation
 Index) by 15.6 and 17.2 points on two real World Cup broadcast windows,
-flipping the verdict class in one of them.
+flipping the verdict class --- under prespecified operational thresholds ---
+in one of them.
 \end{abstract}
 
 \section{Introduction}
@@ -328,7 +329,10 @@ variants (15.2--16.3\,m): the offsets are accumulated against the voted
 reference of Eq.~(1) yet applied at the biased visible centroid, and the
 mismatch misplaces individual players. B4 applies the same EMA offsets at the
 voted centroid instead, making estimation and application self-consistent, and
-obtains the best position error. The clearest negative result is the fixed
+obtains the best position error. B3E and B3 are best read as diagnostic
+reference-mismatch variants --- both estimate offsets against the voted centroid
+but apply them at the visible centroid --- rather than as natural competing
+baselines. The clearest negative result is the fixed
 template (B5), far worse than any dynamic anchor (position error
 20.7--22.7\,m; share error 6.9--10.3\pp{}) --- consistent with within-half
 role drift, though slow adaptation and accumulated subset bias may also
@@ -412,7 +416,7 @@ position error by occlusion duration:
 occlusion gap & $\le$2\,s & 2--9.6\,s & $>$9.6\,s \\
 \midrule
 B4 median position error & 3.3--3.7\,m & 7.2--8.9\,m & 15.6--16.9\,m \\
-share of hidden samples (frame-weighted) & \multicolumn{2}{c}{43--50\%} & 50--57\% \\
+share of hidden samples (frame-weighted) & \multicolumn{2}{c}{$\le$9.6\,s: 43--50\%} & $>$9.6\,s: 50--57\% \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -474,33 +478,35 @@ Section~\ref{sec:benchmark}). Operational verdict classes: \emph{space
 creation} (SCI $\ge +12$) --- the possession creates space even without
 shots; \emph{weak progression} ($+4 \le$ SCI $< +12$); \emph{dead possession}
 (SCI $< +4$). We evaluate the two junk-possession windows that our event-side index flags
-for a FIFA World Cup 2026 group-stage match (Morocco--Netherlands, final score
-1--1) --- flagged from event data alone (possession sequences of negligible
+for a FIFA World Cup 2026 Round-of-32 match between the Netherlands and Morocco
+(1--1 after extra time; Morocco won 3--2 on penalties) --- flagged from event
+data alone (possession sequences of negligible
 threat under an expected-threat grid), before any spatial analysis, and they
 are the only flagged windows for this match, so there is no post hoc window
 selection. Morocco is the possessing team in both. Window 1 spans game clock
-11:58--12:32 (34\,s), window 2 spans 72:32--73:30 (58\,s); scorelines below
+11:58--12:32 (34\,s), window 2 spans 72:48--73:45 (57\,s); scorelines below
 are at each window's start. The attacking third and the opponent's advanced
 zone are the corresponding thirds of pitch length in each team's attack
 direction; shares are frame-averaged over the first and last temporal thirds
-of the window, and the SCI class thresholds ($+12$/$+4$) were fixed in earlier
-work, before these windows were analysed. Imputation moves the score by a
-decision-relevant magnitude:
+of the window, and the SCI class thresholds ($+12$/$+4$) are prespecified
+operational bins, set in our earlier internal work on this index before these
+windows were analysed but not externally validated. Imputation moves the score
+by a decision-relevant magnitude:
 
 \begin{itemize}
-\item Window 1 (0--0, min.\ 12): SCI $+15.6 \to +32.8$. The hidden retreating
-defenders, restored by imputation, \emph{amplify} a genuine space-creation
-signal that visible-only analysis understates.
+\item Window 1 (0--0, min.\ 12): SCI $+15.6 \to +32.8$. Under the imputation
+policy, the estimated off-screen defenders produce a substantially
+\emph{stronger} space-creation signal than the visible-only estimate.
 \item Window 2 (0--1, min.\ 73): SCI $-10.9 \to +4.7$ --- the verdict class
 changes from ``dead junk'' to ``weak progression''.
 \end{itemize}
 
-Absent full-pitch ground truth for broadcast footage we make no correctness
-claim on real clips; the point is a sensitivity result. Visible-only spatial
+Absent full-pitch ground truth for broadcast footage we make no claim that the
+imputed scores are more accurate; the point is a sensitivity result. Visible-only spatial
 verdicts can move by 15.6--17.2 SCI points under imputation --- more than
 spanning the 8-point intermediate verdict class --- so spatial
-possession-quality reported from broadcast video without imputation reflects,
-in part, camera framing rather than play.
+possession-quality reported from broadcast video without imputation is
+sensitive to camera framing and the chosen off-screen-player policy.
 
 \section{Limitations and Future Work}
 \label{sec:limitations}
