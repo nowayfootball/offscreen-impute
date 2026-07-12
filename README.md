@@ -60,7 +60,8 @@ pipeline code is open but the footage must be sourced separately.)
 
 ## Paper
 
-Full text: [`paper/offscreen_impute_EN.md`](paper/offscreen_impute_EN.md)
+Compiled PDF: [`paper/offscreen_impute.pdf`](paper/offscreen_impute.pdf).
+Full-text summary: [`paper/offscreen_impute_EN.md`](paper/offscreen_impute_EN.md)
 (Korean version: [`paper/offscreen_impute_KO.md`](paper/offscreen_impute_KO.md)).
 LaTeX source: [`paper/latex/main.tex`](paper/latex/main.tex).
 
