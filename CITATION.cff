@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Training-Free Off-Screen Player Imputation for Broadcast-Based Spatial Football Analytics"
+abstract: "A training-free, online benchmark and method for imputing off-screen players in broadcast football video, scored by downstream spatial metrics (pitch control, control-share)."
+type: article
+authors:
+  - family-names: Choi
+    given-names: Seongjin
+    orcid: "https://orcid.org/0009-0001-3193-7424"
+    affiliation: "Independent Researcher"
+year: 2026
+license: CC-BY-4.0
+repository-code: "https://github.com/nowayfootball/offscreen-impute"
+keywords:
+  - football analytics
+  - player imputation
+  - pitch control
+  - game state reconstruction

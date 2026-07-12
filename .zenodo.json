@@ -1,0 +1,24 @@
+{
+  "upload_type": "publication",
+  "publication_type": "preprint",
+  "title": "Training-Free Off-Screen Player Imputation for Broadcast-Based Spatial Football Analytics",
+  "creators": [
+    {
+      "name": "Choi, Seongjin",
+      "orcid": "0009-0001-3193-7424",
+      "affiliation": "Independent Researcher"
+    }
+  ],
+  "description": "Spatial football metrics such as pitch control assume access to the positions of all 22 players, yet the most widely available source of positional data — the broadcast main camera — shows only 10–16 of them at any moment. We quantify the resulting distortion with an open, reproducible benchmark: a simulated broadcast viewport applied to open full-pitch tracking data (Metrica Sports; three matches, one held out from method development). Ignoring off-screen players — the visible-only baseline implied whenever a video-based game-state-reconstruction (GSR) pipeline adds no imputation layer — inflates hidden-zone pitch-control error to 25.1–26.9 percentage points and produces a mean absolute control-share error of 11.1–13.4 points across the three matches. We then evaluate a ladder of training-free, online imputation baselines that use only observations from the match being analysed. The best overall on these decision-relevant metrics, role-anchored centroid voting — each visible player votes for the full-team centroid by subtracting its running role offset, attenuating the viewport-induced subset bias — roughly halves hidden-zone error (to 12.2–13.8 points) and cuts the control-share error to 28–48% of the ignore policy at every viewport width from 36 m to 60 m in all three matches (4.5–4.7 points at W=44 m). In the short-occlusion regime (≤9.6 s) covered by the closest learned prior work, our training-free method reaches binwise median position errors of 3.3–8.9 m; 50–57% of hidden-player observations under the simulated viewport, however, lie beyond that regime, outside the 9.6 s sequence protocol of that prior work. We integrate the method end-to-end into a broadcast-video GSR pipeline and show that imputation changes a downstream possession-quality score (Space-Creation Index) by 15.6 and 17.2 points on two real World Cup broadcast windows, flipping the verdict class — under prespecified operational thresholds — in one of them.",
+  "access_right": "open",
+  "license": "cc-by-4.0",
+  "keywords": [
+    "football analytics",
+    "player imputation",
+    "pitch control",
+    "game state reconstruction",
+    "sports analytics",
+    "computer vision",
+    "broadcast video"
+  ]
+}
