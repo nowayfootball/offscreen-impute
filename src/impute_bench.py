@@ -428,6 +428,13 @@ def main():
         if ci_h and ci_s:
             print(f"{m.upper()} 95% CI: hidden MAE [{ci_h[0]:.1f}, {ci_h[1]:.1f}]%p "
                   f"· share err [{ci_s[0]:.1f}, {ci_s[1]:.1f}]%p")
+    for m in ("b2", "b3v"):  # paired difference CI: B4 - m (share error)
+        a, b = stats["share_bias"]["b4"], stats["share_bias"][m]
+        if len(a) == len(b):
+            diff = np.abs(a) - np.abs(b)
+            ci = block_ci(diff, block=60 * args.fps)
+            if ci:
+                print(f"paired share err B4-{m.upper()} 95% CI: [{ci[0]:+.2f}, {ci[1]:+.2f}]%p")
 
 
 if __name__ == "__main__":
