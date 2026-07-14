@@ -1,5 +1,6 @@
 # Off-Screen Player Imputation for Broadcast-Based Spatial Football Analytics
 
+[![arXiv](https://img.shields.io/badge/arXiv-2607.11548-b31b1b.svg)](https://arxiv.org/abs/2607.11548)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21327945.svg)](https://doi.org/10.5281/zenodo.21327945)
 
 Training-free, online imputation of off-camera players, benchmarked by what actually
@@ -73,6 +74,7 @@ not included in this repository.)
 
 ## Paper
 
+arXiv: [2607.11548](https://arxiv.org/abs/2607.11548).
 Compiled PDF: [`paper/offscreen_impute.pdf`](paper/offscreen_impute.pdf).
 Full-text summary: [`paper/offscreen_impute_EN.md`](paper/offscreen_impute_EN.md)
 (Korean version: [`paper/offscreen_impute_KO.md`](paper/offscreen_impute_KO.md)).
